@@ -1,9 +1,11 @@
 package com.hiwijaya.crud.entity;
 
+import com.hiwijaya.crud.util.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 
 /**
@@ -18,20 +20,11 @@ public class Customer {
     private String name;
     private Gender gender;
 
-}
+    private List<RentTransaction> rentals;
 
-
-@Getter
-enum Gender {
-
-    MALE("M", "Male"),
-    FEMALE("F", "Female");
-
-    private final String symbol;
-    private final String desc;
-
-    Gender(String symbol, String desc) {
-        this.symbol = symbol;
-        this.desc = desc;
+    // obey to Law of Demeter
+    public String getGenderSymbol(){
+        return gender.getSymbol();
     }
+
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Happy Indra Wijaya
@@ -20,5 +21,7 @@ public class RentTransaction {
     private Date rentalDate;
     private Date returnDate;
     private BigDecimal total;
+
+    private List<RentTransactionDetail> details;
 
 }
