@@ -18,5 +18,6 @@ public class Book {
     private String title;
     private String author;
     private BigDecimal rentPrice;
+    private boolean rented;     // Y/N
 
 }

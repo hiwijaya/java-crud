@@ -10,7 +10,8 @@ CREATE TABLE books (
     id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     author VARCHAR(100) NOT NULL,
-    rent_price DECIMAL DEFAULT 0
+    rent_price DECIMAL DEFAULT 0,
+    rented VARCHAR(1) NOT NULL DEFAULT 'N'
 );
 
 CREATE TABLE rent_transactions (
