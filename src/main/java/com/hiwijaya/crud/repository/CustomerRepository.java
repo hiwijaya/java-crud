@@ -11,9 +11,9 @@ public interface CustomerRepository {
 
     Customer save(Customer customer);
 
-    boolean delete(int customerId);
+    boolean delete(Integer customerId);
 
-    Customer getCustomer(int customerId);
+    Customer getCustomer(Integer customerId);
 
     List<Customer> getAll();
 

@@ -60,7 +60,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public boolean delete(int customerId) {
+    public boolean delete(Integer customerId) {
 
         Connection connection;
         final String DELETE_QUERY = "delete from customers where id = ?";
@@ -86,7 +86,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public Customer getCustomer(int customerId) {
+    public Customer getCustomer(Integer customerId) {
 
         Connection connection;
         final String GET_CUSTOMER_BY_ID = "select * from customers where id = ?";
