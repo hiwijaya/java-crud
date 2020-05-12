@@ -4,6 +4,7 @@ import com.hiwijaya.crud.entity.Book;
 import com.hiwijaya.crud.entity.Customer;
 import com.hiwijaya.crud.service.BookService;
 import com.hiwijaya.crud.service.CustomerService;
+import com.hiwijaya.crud.service.RentalService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -56,6 +57,27 @@ public class Main {
 
     }
 
+    public static void rent(){
+
+        RentalService rentalService = new RentalService();
+        BookService bookService = new BookService();
+        CustomerService customerService = new CustomerService();
+
+        Customer customer = customerService.getCustomer(8);
+
+        Book book1 = bookService.getBook(1);
+        Book book2 = bookService.getBook(2);
+
+        BigDecimal total = rentalService.rent(customer, book1, book2);
+        System.out.println("Total: " + total.toPlainString());
+
+
+
+
+
+    }
+
+
     public static void main(String[] args) {
 
         CustomerService customerService = new CustomerService();
@@ -83,7 +105,9 @@ public class Main {
 //        List<Customer> customers = customerService.getAll();
 //        customers.forEach(System.out::println);
 
-        createBooks(bookService);
+//        createBooks(bookService);
+
+        rent();
 
     }
 

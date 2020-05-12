@@ -25,9 +25,8 @@ CREATE TABLE rent_transactions (
 
 CREATE TABLE rent_transaction_details (
     id SERIAL PRIMARY KEY,
-    rent_transaction_id INT NOT NULL,
+    transaction_id INT NOT NULL,
     book_id INT NOT NULL,
-    FOREIGN KEY (rent_transaction_id) REFERENCES rent_transactions(id) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (transaction_id) REFERENCES rent_transactions(id) ON UPDATE CASCADE ON DELETE CASCADE,
     FOREIGN KEY (book_id) REFERENCES books(id) ON UPDATE CASCADE ON DELETE CASCADE
-
 );

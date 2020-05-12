@@ -5,7 +5,6 @@ import com.hiwijaya.crud.entity.Book;
 import com.hiwijaya.crud.repository.BookRepository;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -78,13 +77,14 @@ public class BookRepositoryImpl implements BookRepository {
                 statement.setBigDecimal(3, book.getRentPrice());
                 statement.setString(4, book.isRentedString());
                 statement.addBatch();
-                statement.clearParameters();
+                //statement.clearParameters();
             }
 
             statement.executeBatch();
             statement.close();
 
             connection.commit();
+            connection.setAutoCommit(true);
 
             return true;
         }
