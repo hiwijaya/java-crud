@@ -19,6 +19,7 @@ public class Customer {
     private String name;
     private Gender gender;
 
+    // one-to-many
     private List<RentTransaction> rentals;
 
     public Customer(Integer id, String name, Gender gender) {

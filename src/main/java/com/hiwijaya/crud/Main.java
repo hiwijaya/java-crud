@@ -1,7 +1,11 @@
 package com.hiwijaya.crud;
 
+import com.hiwijaya.crud.entity.Book;
 import com.hiwijaya.crud.entity.Customer;
+import com.hiwijaya.crud.service.BookService;
 import com.hiwijaya.crud.service.CustomerService;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -10,9 +14,52 @@ import java.util.List;
  */
 public class Main {
 
+    private static void createBooks(BookService service){
+        Book book1 = new Book(null,
+                "The Fellowship of The Ring",
+                "J. R. R. Tolkien",
+                new BigDecimal(50000),
+                false);
+
+        Book book2 = new Book(null,
+                "The Two Tower",
+                "J. R. R. Tolkien",
+                new BigDecimal(50000),
+                false);
+
+        Book book3 = new Book(null,
+                "Return of The King",
+                "J. R. R. Tolkien",
+                new BigDecimal(60000),
+                false);
+
+        Book book4 = new Book(null,
+                "The Hunger Games",
+                "Suzanne Collins",
+                new BigDecimal(30000),
+                false);
+
+        Book book5 = new Book(null,
+                "Catching Fire",
+                "Suzanne Collins",
+                new BigDecimal(30000),
+                false);
+
+        Book book6 = new Book(null,
+                "Mockingjay",
+                "Suzanne Collins",
+                new BigDecimal(45000),
+                false);
+
+        boolean succeed = service.save(book1, book2, book3, book4, book5, book6);
+        System.out.println("All saved: " + succeed);
+
+    }
+
     public static void main(String[] args) {
 
         CustomerService customerService = new CustomerService();
+        BookService bookService = new BookService();
 
         // create
 //        Customer customer = new Customer(null, "Liam Abraham Wijaya", Gender.MALE);
@@ -33,9 +80,10 @@ public class Main {
 //
 
         // get all customer
-        List<Customer> customers = customerService.getAll();
-        customers.forEach(System.out::println);
+//        List<Customer> customers = customerService.getAll();
+//        customers.forEach(System.out::println);
 
+        createBooks(bookService);
 
     }
 

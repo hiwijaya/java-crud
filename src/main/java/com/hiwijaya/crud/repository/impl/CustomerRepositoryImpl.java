@@ -122,6 +122,7 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
         Connection connection;
         final String GET_ALL_QUERY = "select * from customers";
+        List<Customer> customers = new ArrayList<>();
 
         try{
             connection = DatabaseHelper.getConnection();
@@ -129,7 +130,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             PreparedStatement statement = connection.prepareStatement(GET_ALL_QUERY);
             ResultSet rs = statement.executeQuery();
 
-            List<Customer> customers = new ArrayList<>();
             while (rs.next()){
                 Customer c = new Customer();
                 c.setId(rs.getInt("id"));
@@ -138,13 +138,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
                 customers.add(c);
             }
 
-            return customers;
         }
         catch(SQLException ex){
             ex.printStackTrace();
         }
 
 
-        return null;
+        return customers;
     }
 }

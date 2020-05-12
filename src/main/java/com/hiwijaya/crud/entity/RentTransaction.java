@@ -22,6 +22,7 @@ public class RentTransaction {
     private Date returnDate;
     private BigDecimal total;
 
+    // one-to-many
     private List<RentTransactionDetail> details;
 
 }

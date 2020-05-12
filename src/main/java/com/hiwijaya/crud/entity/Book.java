@@ -14,10 +14,19 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Book {
 
-    private int id;
+    private Integer id;
     private String title;
     private String author;
     private BigDecimal rentPrice;
     private boolean rented;     // Y/N
+
+
+    public void setRentedString(String rented){
+        this.rented = rented.equals("Y");
+    }
+
+    public String isRentedString(){
+        return rented ? "Y" : "N";
+    }
 
 }
