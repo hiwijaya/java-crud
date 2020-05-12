@@ -13,14 +13,19 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Customer {
 
-    private int id;
+    private Integer id;
     private String name;
     private Gender gender;
 
     private List<RentTransaction> rentals;
+
+    public Customer(Integer id, String name, Gender gender) {
+        this.id = id;
+        this.name = name;
+        this.gender = gender;
+    }
 
     // obey to Law of Demeter
     public String getGenderSymbol(){

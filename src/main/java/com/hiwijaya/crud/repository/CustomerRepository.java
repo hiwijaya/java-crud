@@ -1,22 +1,20 @@
 package com.hiwijaya.crud.repository;
 
 import com.hiwijaya.crud.entity.Customer;
-import com.hiwijaya.crud.util.PersistentException;
-
-import java.sql.SQLException;
 import java.util.List;
+
 
 /**
  * @author Happy Indra Wijaya
  */
 public interface CustomerRepository {
 
-    public Customer save(Customer customer);
+    Customer save(Customer customer);
 
-    public void delete(String customerId);
+    boolean delete(int customerId);
 
-    public Customer getCustomer(String cusctomerId);
+    Customer getCustomer(int customerId);
 
-    public List<Customer> getAll();
+    List<Customer> getAll();
 
 }
