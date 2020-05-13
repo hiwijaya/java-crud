@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RentTransactionDetail {
 
-    private int id;
+    private Integer id;
     private RentTransaction rentTransaction;
     private Book book;
 

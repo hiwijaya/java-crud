@@ -2,10 +2,12 @@ package com.hiwijaya.crud;
 
 import com.hiwijaya.crud.entity.Book;
 import com.hiwijaya.crud.entity.Customer;
+import com.hiwijaya.crud.entity.RentTransaction;
 import com.hiwijaya.crud.service.BookService;
 import com.hiwijaya.crud.service.CustomerService;
 import com.hiwijaya.crud.service.RentalService;
 import com.hiwijaya.crud.util.BookUnavailableException;
+import com.hiwijaya.crud.util.RentOutdatedException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -78,7 +80,18 @@ public class Main {
         }
         System.out.println("Total: " + total.toPlainString());
 
+    }
 
+    public static void returnBooks(){
+        RentalService rentalService = new RentalService();
+
+        RentTransaction transaction = rentalService.getTransaction(2);
+
+        try {
+            boolean f = rentalService.returnBooks(transaction);
+        } catch (RentOutdatedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
 
@@ -111,8 +124,9 @@ public class Main {
 
 //        createBooks(bookService);
 
-        rent();
+//        rent();
 
+        returnBooks();
     }
 
 }

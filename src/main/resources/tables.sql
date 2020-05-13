@@ -19,7 +19,8 @@ CREATE TABLE rent_transactions (
     customer_id INT NOT NULL,
     rental_date DATE NOT NULL DEFAULT CURRENT_DATE,
     return_date DATE NOT NULL,
-    TOTAL DECIMAL DEFAULT 0,
+    total DECIMAL DEFAULT 0,
+    status INT,
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 

@@ -8,11 +8,14 @@ import com.hiwijaya.crud.repository.RentalRepository;
 import com.hiwijaya.crud.repository.impl.RentalRepositoryImpl;
 import com.hiwijaya.crud.util.BookUnavailableException;
 import com.hiwijaya.crud.util.Lib;
+import com.hiwijaya.crud.util.RentOutdatedException;
+import com.hiwijaya.crud.util.RentStatus;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Happy Indra Wijaya
@@ -40,6 +43,7 @@ public class RentalService {
         transaction.setRentalDate(Lib.now());
         transaction.setReturnDate(Lib.nextWeek());
         transaction.setTotal(total);
+        transaction.setStatus(RentStatus.RENT);
 
         List<RentTransactionDetail> details = new ArrayList<>();
         for(Book book : books){
@@ -54,4 +58,22 @@ public class RentalService {
         return total;
 
     }
+
+    public boolean returnBooks(RentTransaction transaction) throws RentOutdatedException {
+
+        if(transaction.getStatus().equals(RentStatus.RENT)){
+            if(transaction.getReturnDate().before(Lib.now())){  // outdated
+                repository.updateStatus(transaction.getId(), RentStatus.OUTDATED);
+                throw new RentOutdatedException("You have to pay late charged");
+            }
+        }
+
+        return repository.updateStatus(transaction.getId(), RentStatus.RETURNED);
+
+    }
+
+    public RentTransaction getTransaction(Integer transactionId){
+        return repository.getTransaction(transactionId);
+    }
+
 }

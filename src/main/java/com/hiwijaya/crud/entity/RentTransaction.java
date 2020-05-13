@@ -1,5 +1,6 @@
 package com.hiwijaya.crud.entity;
 
+import com.hiwijaya.crud.util.RentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,12 @@ import java.util.List;
 @AllArgsConstructor
 public class RentTransaction {
 
-    private int id;
+    private Integer id;
     private Customer customer;
     private Date rentalDate;
     private Date returnDate;
     private BigDecimal total;
+    private RentStatus status;      // 0, 1, 2
 
     // one-to-many
     private List<RentTransactionDetail> details;

@@ -113,11 +113,10 @@ public class BookRepositoryImpl implements BookRepository {
 
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
             statement.setInt(1, bookId);
-            int rowUpdated = statement.executeUpdate();
 
-            if(rowUpdated > 0){
-                return true;    // deleted
-            }
+            boolean deleted = statement.executeUpdate() > 0;
+
+            return deleted;
 
         }
         catch(SQLException ex){
