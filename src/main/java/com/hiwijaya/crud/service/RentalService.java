@@ -6,13 +6,13 @@ import com.hiwijaya.crud.entity.RentTransaction;
 import com.hiwijaya.crud.entity.RentTransactionDetail;
 import com.hiwijaya.crud.repository.RentalRepository;
 import com.hiwijaya.crud.repository.impl.RentalRepositoryImpl;
+import com.hiwijaya.crud.util.BookUnavailableException;
 import com.hiwijaya.crud.util.Lib;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BinaryOperator;
 
 /**
  * @author Happy Indra Wijaya
@@ -21,7 +21,14 @@ public class RentalService {
 
     RentalRepository repository = new RentalRepositoryImpl();
 
-    public BigDecimal rent(Customer customer, Book... books){
+    public BigDecimal rent(Customer customer, Book... books) throws BookUnavailableException {
+
+        // check if one of the books already rented or not
+        boolean rented = Arrays.stream(books).anyMatch(book -> book.isRented());
+        if(rented){
+            throw new BookUnavailableException("One of the selected books is already rented.");
+        }
+
 
         RentTransaction transaction = new RentTransaction();
         transaction.setCustomer(customer);

@@ -5,6 +5,7 @@ import com.hiwijaya.crud.entity.Customer;
 import com.hiwijaya.crud.service.BookService;
 import com.hiwijaya.crud.service.CustomerService;
 import com.hiwijaya.crud.service.RentalService;
+import com.hiwijaya.crud.util.BookUnavailableException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -65,14 +66,17 @@ public class Main {
 
         Customer customer = customerService.getCustomer(8);
 
-        Book book1 = bookService.getBook(1);
+        Book book6 = bookService.getBook(6);
         Book book2 = bookService.getBook(2);
+        Book book5 = bookService.getBook(5);
 
-        BigDecimal total = rentalService.rent(customer, book1, book2);
+        BigDecimal total = BigDecimal.ZERO;
+        try {
+            total = rentalService.rent(customer, book6, book2, book5);
+        } catch (BookUnavailableException e) {
+            System.out.println(e.getMessage());
+        }
         System.out.println("Total: " + total.toPlainString());
-
-
-
 
 
     }
