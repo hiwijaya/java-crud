@@ -27,4 +27,8 @@ public class RentTransaction {
     // one-to-many
     private List<RentTransactionDetail> details;
 
+    public void setCustomerOnlyId(Integer customerId){
+        this.customer = new Customer(customerId, null, null);
+    }
+
 }

@@ -2,8 +2,6 @@ package com.hiwijaya.crud.datasource;
 
 import com.hiwijaya.crud.util.Lib;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;

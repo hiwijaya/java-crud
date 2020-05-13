@@ -16,6 +16,6 @@ public interface RentalRepository {
 
     RentTransaction getTransaction(Integer transactionId);
 
-    List<RentTransaction> getAllTransaction();
+    List<RentTransaction> getAll();
 
 }

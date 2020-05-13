@@ -7,6 +7,7 @@ import com.hiwijaya.crud.service.BookService;
 import com.hiwijaya.crud.service.CustomerService;
 import com.hiwijaya.crud.service.RentalService;
 import com.hiwijaya.crud.util.BookUnavailableException;
+import com.hiwijaya.crud.util.Gender;
 import com.hiwijaya.crud.util.Lib;
 import com.hiwijaya.crud.util.RentOutdatedException;
 
@@ -20,7 +21,26 @@ import java.util.Properties;
  */
 public class Main {
 
-    private static void createBooks(BookService service){
+    private static final CustomerService customerService = new CustomerService();
+    private static final BookService bookService = new BookService();
+    private static final RentalService rentalService = new RentalService();
+
+    private static void createCustomers(){
+        Customer customer1 = new Customer(null, "Liam Abraham Wijaya", Gender.MALE);
+        customer1 = customerService.save(customer1);
+
+        Customer customer2 = new Customer(null, "Emma Watson", Gender.FEMALE);
+        customer2 = customerService.save(customer2);
+
+        Customer customer3 = new Customer(null, "John Wick", Gender.MALE);
+        customer3 = customerService.save(customer3);
+
+        customerService.getAll().forEach(System.out::println);
+
+    }
+
+
+    private static void createBooks(){
         Book book1 = new Book(null,
                 "The Fellowship of The Ring",
                 "J. R. R. Tolkien",
@@ -57,40 +77,45 @@ public class Main {
                 new BigDecimal(45000),
                 false);
 
-        boolean succeed = service.save(book1, book2, book3, book4, book5, book6);
+        boolean succeed = bookService.save(book1, book2, book3, book4, book5, book6);
         System.out.println("All saved: " + succeed);
+
+        bookService.getAll().forEach(System.out::println);
 
     }
 
     public static void rent(){
 
-        RentalService rentalService = new RentalService();
-        BookService bookService = new BookService();
-        CustomerService customerService = new CustomerService();
+        List<Customer> customers = customerService.getAll();
+        List<Book> books = bookService.getAll();
 
-        Customer customer = customerService.getCustomer(8);
+        Customer customer = customers.get(0);
 
-        Book book6 = bookService.getBook(6);
-        Book book2 = bookService.getBook(2);
-        Book book5 = bookService.getBook(5);
+        Book book1 = books.get(0);
+        Book book2 = books.get(1);
+        Book book3 = books.get(2);
 
-        BigDecimal total = BigDecimal.ZERO;
+        BigDecimal bill = BigDecimal.ZERO;
         try {
-            total = rentalService.rent(customer, book6, book2, book5);
+            bill = rentalService.rent(customer, book1, book2, book3);
         } catch (BookUnavailableException e) {
             System.out.println(e.getMessage());
         }
-        System.out.println("Total: " + total.toPlainString());
+
+        System.out.println("Bill: " + bill.toPlainString());
 
     }
 
     public static void returnBooks(){
-        RentalService rentalService = new RentalService();
 
-        RentTransaction transaction = rentalService.getTransaction(2);
+        List<RentTransaction> transactions = rentalService.getAll();
+        transactions.forEach(System.out::println);
+
+        RentTransaction transaction = transactions.get(0);
 
         try {
-            boolean f = rentalService.returnBooks(transaction);
+            boolean succeed = rentalService.returnBooks(transaction);
+            System.out.println("Succeed returning all book: " + succeed);
         } catch (RentOutdatedException e) {
             System.out.println(e.getMessage());
         }
@@ -99,37 +124,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        CustomerService customerService = new CustomerService();
-        BookService bookService = new BookService();
+        createCustomers();
+        createBooks();
 
-        // create
-//        Customer customer = new Customer(null, "Liam Abraham Wijaya", Gender.MALE);
-//        customer = customerService.save(customer);
-//        System.out.println("generated id: " + customer.getId());
-
-        // update
-//        Customer customer = new Customer(1, "John Wick", Gender.MALE);
-//        Customer current = customerService.save(customer);
-//        System.out.println(current);
-
-        // delete
-//        boolean deleted = customerService.delete(1);
-//        System.out.println("deleted: " + deleted);
-
-        // get customer by id
-//        Customer customer = customerService.getCustomer(1);
-//
-
-        // get all customer
-//        List<Customer> customers = customerService.getAll();
-//        customers.forEach(System.out::println);
-
-//        createBooks(bookService);
-
-        rent();
-
-//        returnBooks();
-
+        //rent();
+        //returnBooks();
 
     }
 

@@ -61,10 +61,14 @@ public class RentalService {
 
     public boolean returnBooks(RentTransaction transaction) throws RentOutdatedException {
 
+        if(transaction.getStatus().equals(RentStatus.RETURNED)){
+            return true;
+        }
+
         if(transaction.getStatus().equals(RentStatus.RENT)){
             if(transaction.getReturnDate().before(Lib.now())){  // outdated
                 repository.updateStatus(transaction.getId(), RentStatus.OUTDATED);
-                throw new RentOutdatedException("You have to pay late charged");
+                throw new RentOutdatedException("You have to pay the late charges.");
             }
         }
 
@@ -74,6 +78,10 @@ public class RentalService {
 
     public RentTransaction getTransaction(Integer transactionId){
         return repository.getTransaction(transactionId);
+    }
+
+    public List<RentTransaction> getAll(){
+        return repository.getAll();
     }
 
 }

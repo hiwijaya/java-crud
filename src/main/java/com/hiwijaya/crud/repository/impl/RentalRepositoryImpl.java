@@ -9,6 +9,7 @@ import com.hiwijaya.crud.repository.RentalRepository;
 import com.hiwijaya.crud.util.RentStatus;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -125,7 +126,7 @@ public class RentalRepositoryImpl implements RentalRepository {
             while (rs.next()){
                 transaction = new RentTransaction();
                 transaction.setId(rs.getInt("id"));
-                transaction.setCustomer(new Customer(rs.getInt("customer_id"), null, null));
+                transaction.setCustomerOnlyId(rs.getInt("customer_id"));
                 transaction.setRentalDate(rs.getDate("rental_date"));
                 transaction.setReturnDate(rs.getDate("return_Date"));
                 transaction.setTotal(rs.getBigDecimal("total"));
@@ -142,7 +143,38 @@ public class RentalRepositoryImpl implements RentalRepository {
     }
 
     @Override
-    public List<RentTransaction> getAllTransaction() {
-        return null;
+    public List<RentTransaction> getAll() {
+
+        // TODO: implement pagination
+
+        Connection connection;
+        final String GET_ALL_QUERY = "select * from rent_transactions";
+        List<RentTransaction> transactions = new ArrayList<>();
+
+        try{
+            connection = DatabaseHelper.getConnection();
+
+            PreparedStatement statement = connection.prepareStatement(GET_ALL_QUERY);
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()){
+                RentTransaction transaction = new RentTransaction();
+                transaction.setId(rs.getInt("id"));
+                transaction.setCustomerOnlyId(rs.getInt("customer_id"));
+                transaction.setRentalDate(rs.getDate("rental_date"));
+                transaction.setReturnDate(rs.getDate("return_Date"));
+                transaction.setTotal(rs.getBigDecimal("total"));
+                transaction.setStatus(RentStatus.getStatus(rs.getInt("status")));
+                transactions.add(transaction);
+
+                // lazy load
+            }
+
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+
+        return transactions;
     }
 }
