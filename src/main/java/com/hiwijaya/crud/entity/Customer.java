@@ -1,7 +1,6 @@
 package com.hiwijaya.crud.entity;
 
 import com.hiwijaya.crud.util.Gender;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

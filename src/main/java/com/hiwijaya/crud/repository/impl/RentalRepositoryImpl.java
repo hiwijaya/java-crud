@@ -1,8 +1,6 @@
 package com.hiwijaya.crud.repository.impl;
 
 import com.hiwijaya.crud.datasource.DatabaseHelper;
-import com.hiwijaya.crud.entity.Book;
-import com.hiwijaya.crud.entity.Customer;
 import com.hiwijaya.crud.entity.RentTransaction;
 import com.hiwijaya.crud.entity.RentTransactionDetail;
 import com.hiwijaya.crud.repository.RentalRepository;

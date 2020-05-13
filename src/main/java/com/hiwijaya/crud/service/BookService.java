@@ -1,7 +1,6 @@
 package com.hiwijaya.crud.service;
 
 import com.hiwijaya.crud.entity.Book;
-import com.hiwijaya.crud.entity.Customer;
 import com.hiwijaya.crud.repository.BookRepository;
 import com.hiwijaya.crud.repository.impl.BookRepositoryImpl;
 

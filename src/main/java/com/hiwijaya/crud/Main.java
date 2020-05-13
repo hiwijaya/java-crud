@@ -8,12 +8,10 @@ import com.hiwijaya.crud.service.CustomerService;
 import com.hiwijaya.crud.service.RentalService;
 import com.hiwijaya.crud.util.BookUnavailableException;
 import com.hiwijaya.crud.util.Gender;
-import com.hiwijaya.crud.util.Lib;
 import com.hiwijaya.crud.util.RentOutdatedException;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Properties;
 
 
 /**
