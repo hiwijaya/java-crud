@@ -1,8 +1,13 @@
 package com.hiwijaya.crud.datasource;
 
+import com.hiwijaya.crud.util.Lib;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * @author Happy Indra Wijaya
@@ -17,9 +22,12 @@ public class DatabaseHelper {
 
     public static Connection getConnection() throws SQLException {
         if(connection == null){
-            final String host = "jdbc:postgresql://localhost:5432/library";
-            final String user = "postgres";
-            final String password = "root";
+
+            Properties props = Lib.getPropertiesFile("config.properties");
+
+            final String host = props.getProperty("HOST");
+            final String user = props.getProperty("USER");
+            final String password = props.getProperty("PASSWORD");
 
             connection = DriverManager.getConnection(host, user, password);
             System.out.println("Database connected.");
