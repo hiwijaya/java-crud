@@ -4,3 +4,4 @@
 target/
 
 config.properties
+hikari.properties
