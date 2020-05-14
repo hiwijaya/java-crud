@@ -10,6 +10,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * @author Happy Indra Wijaya
  */
@@ -20,91 +21,129 @@ public class RentalRepositoryImpl implements RentalRepository {
     public RentTransaction save(RentTransaction transaction) {
 
         Connection connection = null;
-        final String INSERT_QUERY = "insert into rent_transactions(customer_id, rental_date, return_date, total, status) " +
-                "values(?, ?, ?, ?, ?)";
-        final String INSERT_DETAIL_QUERY = "insert into rent_transaction_details(transaction_id, book_id) " +
-                "values(?, ?)";
-        final String UPDATE_BOOK_QUERY = "update books set rented = 'Y' where id = ?";
 
         try{
             connection = DatabaseHelper.getConnection();
 
             connection.setAutoCommit(false);
 
-            // add rent_transaction
-            PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
-            statement.setInt(1, transaction.getCustomer().getId());
-            statement.setDate(2, new java.sql.Date(transaction.getRentalDate().getTime()));
-            statement.setDate(3, new java.sql.Date(transaction.getReturnDate().getTime()));
-            statement.setBigDecimal(4, transaction.getTotal());
-            statement.setInt(5, transaction.getStatus().getStatus());
-            statement.executeUpdate();
-
-            ResultSet rs = statement.getGeneratedKeys();
-            rs.next();
-            int generatedId = rs.getInt("id");
-            transaction.setId(generatedId);
-
-            // add rent_transaction_details
-            statement.clearParameters();
-            statement = connection.prepareStatement(INSERT_DETAIL_QUERY);
-            for(RentTransactionDetail detail : transaction.getDetails()){
-                statement.setInt(1, transaction.getId());
-                statement.setInt(2, detail.getBook().getId());
-                statement.addBatch();
-            }
-            statement.executeBatch();
+            // save rent_transaction with all details
+            saveTransaction(connection, transaction);
 
             // update book status as rented
-            statement.clearParameters();
-            statement = connection.prepareStatement(UPDATE_BOOK_QUERY);
-            for(RentTransactionDetail detail : transaction.getDetails()){
-                statement.setInt(1, detail.getBook().getId());
-                statement.addBatch();
-            }
-            statement.executeBatch();
+            updateBookStatusAsRented(connection, transaction.getDetails());
 
-            statement.close();
             connection.commit();
             connection.setAutoCommit(true);
 
             return transaction;
 
         }
-        catch(SQLException ex1){
-            try {
-                connection.rollback();
-            } catch (SQLException ex2) {
-                ex2.printStackTrace();
-            }
+        catch(SQLException ex){
+            rollback(connection);
+            ex.printStackTrace();
         }
 
         return null;
+    }
 
+    private void saveTransaction(Connection connection, RentTransaction transaction) throws SQLException {
+
+        final String INSERT_QUERY = "insert into rent_transactions(customer_id, rental_date, return_date, total, status) " +
+                "values(?, ?, ?, ?, ?)";
+
+        final String INSERT_DETAIL_QUERY = "insert into rent_transaction_details(transaction_id, book_id) " +
+                "values(?, ?)";
+
+        PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+
+        statement.setInt(1, transaction.getCustomer().getId());
+        statement.setDate(2, new java.sql.Date(transaction.getRentalDate().getTime()));
+        statement.setDate(3, new java.sql.Date(transaction.getReturnDate().getTime()));
+        statement.setBigDecimal(4, transaction.getTotal());
+        statement.setInt(5, transaction.getStatus().getStatus());
+        statement.executeUpdate();
+
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();
+        int generatedId = rs.getInt("id");
+        transaction.setId(generatedId);     // passed by reference
+        rs.close();
+        statement.close();
+
+
+        // add rent_transaction_details
+        statement = connection.prepareStatement(INSERT_DETAIL_QUERY);
+        for(RentTransactionDetail detail : transaction.getDetails()){
+            statement.setInt(1, transaction.getId());
+            statement.setInt(2, detail.getBook().getId());
+            statement.addBatch();
+        }
+        statement.executeBatch();
+        statement.close();
+
+    }
+
+    private void updateBookStatusAsRented(Connection connection, List<RentTransactionDetail> details) throws SQLException {
+
+        final String UPDATE_BOOK_QUERY = "update books set rented = 'Y' where id = ?";
+
+        PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_QUERY);
+        for(RentTransactionDetail detail : details){
+            statement.setInt(1, detail.getBook().getId());
+            statement.addBatch();
+        }
+        statement.executeBatch();
+        statement.close();
     }
 
     @Override
     public boolean updateStatus(Integer transactionId, RentStatus status) {
 
-        Connection connection;
+        Connection connection = null;
         final String UPDATE_STATUS_QUERY = "update rent_transactions set status = ? where id = ?";
 
         try {
             connection = DatabaseHelper.getConnection();
 
+            connection.setAutoCommit(false);
+
             PreparedStatement statement = connection.prepareStatement(UPDATE_STATUS_QUERY);
             statement.setInt(1, status.getStatus());
             statement.setInt(2, transactionId);
-            boolean updated = statement.executeUpdate() > 0;
+            statement.executeUpdate();
+            statement.close();
 
-            return updated;
+            if(status.equals(RentStatus.RETURNED)){
+                List<RentTransactionDetail> transactionDetails = getTransactionDetails(transactionId);
+                changeRentedStatusFromBooks(connection, transactionDetails);
+            }
 
-        } catch (SQLException ex) {
+            connection.commit();
+            connection.setAutoCommit(true);
+
+            return true;
+
+        }
+        catch (SQLException ex) {
             ex.printStackTrace();
+            rollback(connection);
         }
 
-
         return false;
+    }
+
+    private void changeRentedStatusFromBooks(Connection connection, List<RentTransactionDetail> details) throws SQLException {
+
+        final String UPDATE_BOOK_QUERY = "update books set rented = 'N' where id = ?";
+
+        PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_QUERY);
+        for(RentTransactionDetail detail : details){
+            statement.setInt(1, detail.getBook().getId());
+            statement.addBatch();
+        }
+        statement.executeBatch();
+        statement.close();
     }
 
     @Override
@@ -130,6 +169,9 @@ public class RentalRepositoryImpl implements RentalRepository {
                 transaction.setTotal(rs.getBigDecimal("total"));
                 transaction.setStatus(RentStatus.getStatus(rs.getInt("status")));
             }
+
+            rs.close();
+            statement.close();
 
             return transaction;
         }
@@ -164,9 +206,11 @@ public class RentalRepositoryImpl implements RentalRepository {
                 transaction.setTotal(rs.getBigDecimal("total"));
                 transaction.setStatus(RentStatus.getStatus(rs.getInt("status")));
                 transactions.add(transaction);
-
-                // lazy load
+                // lazy load details
             }
+
+            rs.close();
+            statement.close();
 
         }
         catch(SQLException ex){
@@ -175,4 +219,45 @@ public class RentalRepositoryImpl implements RentalRepository {
 
         return transactions;
     }
+
+    @Override
+    public List<RentTransactionDetail> getTransactionDetails(Integer transactionId) {
+
+        Connection connection;
+        final String GET_ALL_QUERY = "select * from rent_transaction_details where transaction_id = ?";
+        List<RentTransactionDetail> details = new ArrayList<>();
+
+        try{
+            connection = DatabaseHelper.getConnection();
+
+            PreparedStatement statement = connection.prepareStatement(GET_ALL_QUERY);
+            statement.setInt(1, transactionId);
+            ResultSet rs = statement.executeQuery();
+            while (rs.next()){
+                RentTransactionDetail detail = new RentTransactionDetail();
+                detail.setRentTransactionOnlyId(rs.getInt("transaction_id"));
+                detail.setBookOnlyId(rs.getInt("book_id"));
+                details.add(detail);
+            }
+
+            rs.close();
+            statement.close();
+
+        }
+        catch(SQLException ex){
+            ex.printStackTrace();
+        }
+
+        return details;
+    }
+
+
+    private void rollback(Connection connection){
+        try {
+            connection.rollback();
+        } catch (SQLException ex2) {
+            ex2.printStackTrace();
+        }
+    }
+
 }

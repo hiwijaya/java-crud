@@ -27,6 +27,10 @@ public class Customer {
         this.gender = gender;
     }
 
+    public Customer(Integer id){
+        this.id = id;
+    }
+
     // obey to Law of Demeter
     public String getGenderSymbol(){
         return gender.getSymbol();

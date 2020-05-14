@@ -16,4 +16,13 @@ public class RentTransactionDetail {
     private RentTransaction rentTransaction;
     private Book book;
 
+
+    public void setRentTransactionOnlyId(Integer trasactionId){
+        this.rentTransaction = new RentTransaction(trasactionId);
+    }
+
+    public void setBookOnlyId(Integer bookId){
+        this.book = new Book(bookId);
+    }
+
 }

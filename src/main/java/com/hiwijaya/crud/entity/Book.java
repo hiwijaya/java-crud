@@ -21,6 +21,11 @@ public class Book {
     private boolean rented;     // Y/N
 
 
+    public Book(Integer id){
+        this.id = id;
+    }
+
+
     public void setRentedString(String rented){
         this.rented = rented.equals("Y");
     }

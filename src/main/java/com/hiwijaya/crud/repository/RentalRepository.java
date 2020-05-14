@@ -1,6 +1,7 @@
 package com.hiwijaya.crud.repository;
 
 import com.hiwijaya.crud.entity.RentTransaction;
+import com.hiwijaya.crud.entity.RentTransactionDetail;
 import com.hiwijaya.crud.util.RentStatus;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public interface RentalRepository {
     RentTransaction getTransaction(Integer transactionId);
 
     List<RentTransaction> getAll();
+
+    List<RentTransactionDetail> getTransactionDetails(Integer transactionId);
 
 }

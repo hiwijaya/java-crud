@@ -125,8 +125,9 @@ public class Main {
         createCustomers();
         createBooks();
 
-        //rent();
-        //returnBooks();
+//        rent();
+
+//        returnBooks();
 
     }
 

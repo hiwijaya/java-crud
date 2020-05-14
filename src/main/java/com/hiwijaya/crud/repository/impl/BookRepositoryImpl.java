@@ -15,40 +15,22 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
+
         Connection connection;
-        final String INSERT_QUERY = "insert into books(title, author, rent_price, rented) values(?, ?, ?, ?)";
-        final String UPDATE_QUERY = "update books set title = ?, author = ?, rent_price = ?, rented = ? where id = ?";
 
         try {
             connection = DatabaseHelper.getConnection();
 
-            // if customer already exist, do update instead
+            // if book already exist, do update instead
             if(book.getId() != null){
                 boolean bookExisted = getBook(book.getId()) != null;
                 if(bookExisted){
-                    PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
-                    statement.setString(1, book.getTitle());
-                    statement.setString(2, book.getAuthor());
-                    statement.setBigDecimal(3, book.getRentPrice());
-                    statement.setString(4, book.isRentedString());
-                    statement.setInt(5, book.getId());
-                    statement.executeUpdate();
-
+                    updateExistingBook(connection, book);
                     return book;
                 }
             }
 
-            PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, book.getTitle());
-            statement.setString(2, book.getAuthor());
-            statement.setBigDecimal(3, book.getRentPrice());
-            statement.setString(4, book.isRentedString());
-            statement.executeUpdate();
-
-            ResultSet rs = statement.getGeneratedKeys();
-            rs.next();
-            int generatedId = rs.getInt("id");
-            book.setId(generatedId);
+            saveBook(connection, book);
 
             return book;
 
@@ -58,6 +40,41 @@ public class BookRepositoryImpl implements BookRepository {
         }
 
         return null;
+    }
+
+    private void updateExistingBook(Connection connection, Book book) throws SQLException {
+
+        final String UPDATE_QUERY = "update books set title = ?, author = ?, rent_price = ?, rented = ? where id = ?";
+
+        PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+        statement.setString(1, book.getTitle());
+        statement.setString(2, book.getAuthor());
+        statement.setBigDecimal(3, book.getRentPrice());
+        statement.setString(4, book.isRentedString());
+        statement.setInt(5, book.getId());
+        statement.executeUpdate();
+
+    }
+
+    private void saveBook(Connection connection, Book book) throws SQLException {
+
+        final String INSERT_QUERY = "insert into books(title, author, rent_price, rented) values(?, ?, ?, ?)";
+
+        PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+        statement.setString(1, book.getTitle());
+        statement.setString(2, book.getAuthor());
+        statement.setBigDecimal(3, book.getRentPrice());
+        statement.setString(4, book.isRentedString());
+        statement.executeUpdate();
+
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();
+        int generatedId = rs.getInt("id");
+        book.setId(generatedId);
+
+        rs.close();
+        statement.close();
+
     }
 
     @Override
@@ -79,7 +96,6 @@ public class BookRepositoryImpl implements BookRepository {
                 statement.addBatch();
                 //statement.clearParameters();
             }
-
             statement.executeBatch();
             statement.close();
 
@@ -90,16 +106,18 @@ public class BookRepositoryImpl implements BookRepository {
         }
         catch (SQLException ex1) {
             ex1.printStackTrace();
-
-            try {
-                connection.rollback();
-            } catch (SQLException ex2) {
-                ex2.printStackTrace();
-            }
+            rollback(connection);
         }
 
         return false;
+    }
 
+    private void rollback(Connection connection){
+        try {
+            connection.rollback();
+        } catch (SQLException ex2) {
+            ex2.printStackTrace();
+        }
     }
 
     @Override
@@ -113,8 +131,9 @@ public class BookRepositoryImpl implements BookRepository {
 
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
             statement.setInt(1, bookId);
-
             boolean deleted = statement.executeUpdate() > 0;
+
+            statement.close();
 
             return deleted;
 
@@ -150,6 +169,9 @@ public class BookRepositoryImpl implements BookRepository {
                 book.setRentedString(rs.getString("rented"));
             }
 
+            rs.close();
+            statement.close();
+
             return book;
         }
         catch(SQLException ex){
@@ -183,6 +205,8 @@ public class BookRepositoryImpl implements BookRepository {
                 book.setRentedString(rs.getString("rented"));
                 books.add(book);
             }
+            rs.close();
+            statement.close();
 
         }
         catch(SQLException ex){

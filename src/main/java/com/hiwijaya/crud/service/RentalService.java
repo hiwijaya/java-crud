@@ -24,30 +24,25 @@ public class RentalService {
 
     RentalRepository repository = new RentalRepositoryImpl();
 
+
     public BigDecimal rent(Customer customer, Book... books) throws BookUnavailableException {
 
         // check if one of the books already rented or not
-        boolean rented = Arrays.stream(books).anyMatch(book -> book.isRented());
-        if(rented){
-            throw new BookUnavailableException("One of the selected books is already rented.");
-        }
+        checkIfBooksAvailable(books);
 
+        BigDecimal totalRentPrice = getTotalRentPrice(books);
 
         RentTransaction transaction = new RentTransaction();
         transaction.setCustomer(customer);
-
-        BigDecimal total = BigDecimal.ZERO;
-        total = Arrays.stream(books).map(book -> book.getRentPrice())
-                .reduce(total, BigDecimal::add);
-
         transaction.setRentalDate(Lib.now());
         transaction.setReturnDate(Lib.nextWeek());
-        transaction.setTotal(total);
+        transaction.setTotal(totalRentPrice);
         transaction.setStatus(RentStatus.RENT);
 
         List<RentTransactionDetail> details = new ArrayList<>();
         for(Book book : books){
             RentTransactionDetail detail = new RentTransactionDetail();
+            detail.setRentTransaction(transaction);
             detail.setBook(book);
             details.add(detail);
         }
@@ -55,26 +50,49 @@ public class RentalService {
 
         repository.save(transaction);
 
-        return total;
-
+        return totalRentPrice;
     }
+
+    private void checkIfBooksAvailable(Book[] books) throws BookUnavailableException {
+        boolean rented = Arrays.stream(books).anyMatch(book -> book.isRented());
+        if(rented){
+            throw new BookUnavailableException("One of the selected books is already rented.");
+        }
+    }
+
+    private BigDecimal getTotalRentPrice(Book[] books){
+        BigDecimal total = BigDecimal.ZERO;
+        total = Arrays.stream(books).map(book -> book.getRentPrice())
+                .reduce(total, BigDecimal::add);
+
+        return total;
+    }
+
 
     public boolean returnBooks(RentTransaction transaction) throws RentOutdatedException {
 
-        if(transaction.getStatus().equals(RentStatus.RETURNED)){
+        if(booksAlreadyReturned(transaction)){
             return true;
         }
 
+        checkTransactionIfOutdated(transaction);
+
+        return repository.updateStatus(transaction.getId(), RentStatus.RETURNED);
+    }
+
+    private boolean booksAlreadyReturned(RentTransaction transaction){
+        return transaction.getStatus().equals(RentStatus.RETURNED);
+    }
+
+    private void checkTransactionIfOutdated(RentTransaction transaction) throws RentOutdatedException {
         if(transaction.getStatus().equals(RentStatus.RENT)){
             if(transaction.getReturnDate().before(Lib.now())){  // outdated
                 repository.updateStatus(transaction.getId(), RentStatus.OUTDATED);
                 throw new RentOutdatedException("You have to pay the late charges.");
             }
         }
-
-        return repository.updateStatus(transaction.getId(), RentStatus.RETURNED);
-
     }
+
 
     public RentTransaction getTransaction(Integer transactionId){
         return repository.getTransaction(transactionId);

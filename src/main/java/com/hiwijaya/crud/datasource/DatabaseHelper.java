@@ -14,11 +14,8 @@ import java.util.Properties;
  */
 public class DatabaseHelper {
 
-    private static final boolean USE_CONNECTION_POOL = true;
-
+    private static final boolean USE_CONNECTION_POOL = false;
     private static HikariDataSource poolSource;
-
-    // singleton
     private static Connection connection;
 
 
@@ -26,40 +23,37 @@ public class DatabaseHelper {
 
 
     public static Connection getConnection() throws SQLException {
-
         if(USE_CONNECTION_POOL){
-            if(poolSource == null){
-                Properties props = Lib.getPropertiesFile("hikari.properties");
-
-                HikariConfig config = new HikariConfig(props);
-                poolSource = new HikariDataSource(config);
-            }
-
+            initConnectionPool();
             return poolSource.getConnection();
         }
         else{
-            if(connection == null){
-                Properties props = Lib.getPropertiesFile("config.properties");
-
-                final String host = props.getProperty("HOST");
-                final String user = props.getProperty("USER");
-                final String password = props.getProperty("PASSWORD");
-
-                // init singleton object connection
-                connection = DriverManager.getConnection(host, user, password);
-                System.out.println("Database connected.");
-
-            }
-
+            initSingletonConnection();
             return connection;
         }
+    }
 
+    private static void initConnectionPool(){
+        if(poolSource == null){
+            Properties props = Lib.getPropertiesFile("hikari.properties");
+            HikariConfig config = new HikariConfig(props);
+            poolSource = new HikariDataSource(config);
+        }
+    }
 
+    private static void initSingletonConnection() throws SQLException {
+        if(connection == null){
+            Properties props = Lib.getPropertiesFile("config.properties");
 
+            final String host = props.getProperty("HOST");
+            final String user = props.getProperty("USER");
+            final String password = props.getProperty("PASSWORD");
 
+            // init singleton object connection
+            connection = DriverManager.getConnection(host, user, password);
+            System.out.println("Database connected.");
 
-
-
+        }
     }
 
 }

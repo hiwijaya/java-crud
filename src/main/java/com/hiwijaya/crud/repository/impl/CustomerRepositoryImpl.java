@@ -19,8 +19,6 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     public Customer save(Customer customer) {
 
         Connection connection;
-        final String INSERT_QUERY = "insert into customers(name, gender) values(?, ?)";
-        final String UPDATE_QUERY = "update customers set name = ?, gender = ? where id = ?";
 
         try {
             connection = DatabaseHelper.getConnection();
@@ -29,25 +27,12 @@ public class CustomerRepositoryImpl implements CustomerRepository {
             if(customer.getId() != null){
                 boolean customerExisted = getCustomer(customer.getId()) != null;
                 if(customerExisted){
-                    PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
-                    statement.setString(1, customer.getName());
-                    statement.setString(2, customer.getGenderSymbol());
-                    statement.setInt(3, customer.getId());
-                    statement.executeUpdate();
-
+                    updateExistingCustomer(connection, customer);
                     return customer;
                 }
             }
 
-            PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, customer.getName());
-            statement.setString(2, customer.getGenderSymbol());
-            statement.executeUpdate();
-
-            ResultSet rs = statement.getGeneratedKeys();
-            rs.next();
-            int generatedId = rs.getInt("id");
-            customer.setId(generatedId);
+            saveCustomer(connection, customer);
 
             return customer;
 
@@ -57,6 +42,39 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         }
 
         return null;
+    }
+
+    private void updateExistingCustomer(Connection connection, Customer customer) throws SQLException {
+
+        final String UPDATE_QUERY = "update customers set name = ?, gender = ? where id = ?";
+
+        PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+        statement.setString(1, customer.getName());
+        statement.setString(2, customer.getGenderSymbol());
+        statement.setInt(3, customer.getId());
+        statement.executeUpdate();
+
+        statement.close();
+
+    }
+
+    private void saveCustomer(Connection connection, Customer customer) throws SQLException {
+
+        final String INSERT_QUERY = "insert into customers(name, gender) values(?, ?)";
+
+        PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
+        statement.setString(1, customer.getName());
+        statement.setString(2, customer.getGenderSymbol());
+        statement.executeUpdate();
+
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();
+        int generatedId = rs.getInt("id");
+        customer.setId(generatedId);        // passed by references
+
+        rs.close();
+        statement.close();
+
     }
 
     @Override
@@ -70,19 +88,16 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
             statement.setInt(1, customerId);
-            int rowUpdated = statement.executeUpdate();
+            boolean deleted = statement.executeUpdate() > 0;
+            statement.close();
 
-            if(rowUpdated > 0){
-                return true;    // deleted
-            }
-
+            return deleted;
         }
         catch(SQLException ex){
             ex.printStackTrace();
         }
 
         return false;
-
     }
 
     @Override
@@ -105,6 +120,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
                 customer.setName(rs.getString("name"));
                 customer.setGender(Gender.getGender(rs.getString("gender")));
             }
+
+            rs.close();
+            statement.close();
 
             return customer;
         }
@@ -137,12 +155,13 @@ public class CustomerRepositoryImpl implements CustomerRepository {
                 c.setGender(Gender.getGender(rs.getString("gender")));
                 customers.add(c);
             }
+            rs.close();
+            statement.close();
 
         }
         catch(SQLException ex){
             ex.printStackTrace();
         }
-
 
         return customers;
     }
