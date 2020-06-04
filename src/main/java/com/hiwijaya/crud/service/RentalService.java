@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class RentalService {
 
-    RentalRepository repository = new RentalRepositoryImpl();
+    private final RentalRepository repository = new RentalRepositoryImpl();
 
 
     public BigDecimal rent(Customer customer, Book... books) throws BookUnavailableException {
@@ -85,11 +85,9 @@ public class RentalService {
     }
 
     private void checkTransactionIfOutdated(RentTransaction transaction) throws RentOutdatedException {
-        if(transaction.getStatus().equals(RentStatus.RENT)){
-            if(transaction.getReturnDate().before(Lib.now())){  // outdated
-                repository.updateStatus(transaction.getId(), RentStatus.OUTDATED);
-                throw new RentOutdatedException("You have to pay the late charges.");
-            }
+        if(transaction.getStatus().equals(RentStatus.RENT) && transaction.getReturnDate().before(Lib.now())){
+            repository.updateStatus(transaction.getId(), RentStatus.OUTDATED);
+            throw new RentOutdatedException("You have to pay the late charges.");
         }
     }
 

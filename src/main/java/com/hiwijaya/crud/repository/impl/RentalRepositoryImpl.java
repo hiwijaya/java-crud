@@ -31,7 +31,7 @@ public class RentalRepositoryImpl implements RentalRepository {
             saveTransaction(connection, transaction);
 
             // update book status as rented
-            updateBookStatusAsRented(connection, transaction.getDetails());
+            updateBookStatus(connection, transaction.getDetails(), true);
 
             connection.commit();
             connection.setAutoCommit(true);
@@ -65,9 +65,10 @@ public class RentalRepositoryImpl implements RentalRepository {
         statement.executeUpdate();
 
         ResultSet rs = statement.getGeneratedKeys();
-        rs.next();
-        int generatedId = rs.getInt("id");
-        transaction.setId(generatedId);     // passed by reference
+        while (rs.next()){
+            int generatedId = rs.getInt("id");
+            transaction.setId(generatedId);     // passed by reference
+        }
         rs.close();
         statement.close();
 
@@ -84,18 +85,20 @@ public class RentalRepositoryImpl implements RentalRepository {
 
     }
 
-    private void updateBookStatusAsRented(Connection connection, List<RentTransactionDetail> details) throws SQLException {
+    private void updateBookStatus(Connection connection, List<RentTransactionDetail> details, boolean rented) throws SQLException {
 
-        final String UPDATE_BOOK_QUERY = "update books set rented = 'Y' where id = ?";
+        final String UPDATE_BOOK_QUERY = "update books set rented = ? where id = ?";
 
         PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_QUERY);
         for(RentTransactionDetail detail : details){
-            statement.setInt(1, detail.getBook().getId());
+            statement.setString(1, rented ? "Y" : "N");
+            statement.setInt(2, detail.getBook().getId());
             statement.addBatch();
         }
         statement.executeBatch();
         statement.close();
     }
+
 
     @Override
     public boolean updateStatus(Integer transactionId, RentStatus status) {
@@ -116,7 +119,7 @@ public class RentalRepositoryImpl implements RentalRepository {
 
             if(status.equals(RentStatus.RETURNED)){
                 List<RentTransactionDetail> transactionDetails = getTransactionDetails(transactionId);
-                changeRentedStatusFromBooks(connection, transactionDetails);
+                updateBookStatus(connection, transactionDetails, false);
             }
 
             connection.commit();
@@ -131,19 +134,6 @@ public class RentalRepositoryImpl implements RentalRepository {
         }
 
         return false;
-    }
-
-    private void changeRentedStatusFromBooks(Connection connection, List<RentTransactionDetail> details) throws SQLException {
-
-        final String UPDATE_BOOK_QUERY = "update books set rented = 'N' where id = ?";
-
-        PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_QUERY);
-        for(RentTransactionDetail detail : details){
-            statement.setInt(1, detail.getBook().getId());
-            statement.addBatch();
-        }
-        statement.executeBatch();
-        statement.close();
     }
 
     @Override

@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class BookService {
 
-    BookRepository repository = new BookRepositoryImpl();
+    private final BookRepository repository = new BookRepositoryImpl();
 
     public Book save(Book book){
 

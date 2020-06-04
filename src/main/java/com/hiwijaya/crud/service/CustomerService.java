@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class CustomerService {
 
-    private CustomerRepository repository = new CustomerRepositoryImpl();
+    private final CustomerRepository repository = new CustomerRepositoryImpl();
 
 
     public Customer save(Customer customer){

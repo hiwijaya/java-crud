@@ -26,10 +26,10 @@ public enum Gender {
 
 
     public static Gender getGender(String symbol){
-        if(symbol.equals("M")){
+        if("M".equals(symbol)){
             return MALE;
         }
-        else if(symbol.equals("F")){
+        else if("F".equals(symbol)){
             return FEMALE;
         }
         return null;
