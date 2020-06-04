@@ -68,9 +68,10 @@ public class BookRepositoryImpl implements BookRepository {
         statement.executeUpdate();
 
         ResultSet rs = statement.getGeneratedKeys();
-        rs.next();
-        int generatedId = rs.getInt("id");
-        book.setId(generatedId);
+        while (rs.next()){
+            int generatedId = rs.getInt("id");
+            book.setId(generatedId);
+        }
 
         rs.close();
         statement.close();

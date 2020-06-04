@@ -68,9 +68,10 @@ public class CustomerRepositoryImpl implements CustomerRepository {
         statement.executeUpdate();
 
         ResultSet rs = statement.getGeneratedKeys();
-        rs.next();
-        int generatedId = rs.getInt("id");
-        customer.setId(generatedId);        // passed by references
+        while (rs.next()){
+            int generatedId = rs.getInt("id");
+            customer.setId(generatedId);        // passed by references
+        }
 
         rs.close();
         statement.close();
