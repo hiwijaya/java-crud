@@ -58,8 +58,8 @@ public class RentalRepositoryImpl implements RentalRepository {
         PreparedStatement statement = connection.prepareStatement(INSERT_QUERY, Statement.RETURN_GENERATED_KEYS);
 
         statement.setInt(1, transaction.getCustomer().getId());
-        statement.setDate(2, new java.sql.Date(transaction.getRentalDate().getTime()));
-        statement.setDate(3, new java.sql.Date(transaction.getReturnDate().getTime()));
+        statement.setDate(2, new Date(transaction.getRentalDate().getTime()));
+        statement.setDate(3, new Date(transaction.getReturnDate().getTime()));
         statement.setBigDecimal(4, transaction.getTotal());
         statement.setInt(5, transaction.getStatus().getStatus());
         statement.executeUpdate();
