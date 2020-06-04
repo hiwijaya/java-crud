@@ -27,7 +27,7 @@ public class Book {
 
 
     public void setRentedString(String rented){
-        this.rented = rented.equals("Y");
+        this.rented = "Y".equals(rented);
     }
 
     public String isRentedString(){
