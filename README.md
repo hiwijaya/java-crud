@@ -4,4 +4,5 @@
 
 CRUD application with DAO pattern and plain JDBC only. Included how to config connection-pool with [HikariCP](https://github.com/brettwooldridge/HikariCP).
 
-If you are looking **spring version** from this repo, please check [this](https://github.com/hiwijaya/spring-crud.git) out.
+If you are looking **spring version** from this repo, please check this [repo](https://github.com/hiwijaya/spring-crud).
+There are also **spring-boot version**, you can find on this [repo](https://github.com/hiwijaya/spring-boot-crud).
